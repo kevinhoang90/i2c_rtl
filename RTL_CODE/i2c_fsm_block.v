@@ -88,7 +88,7 @@ module i2c_fsm_block(
             end
             //---------------------------------------------------------
             ADDR: begin
-                if (counter_data_ack_i == 8 && counter_detect_edge_i == 0)
+                if (counter_data_ack_i == 8 && counter_detect_edge_i == 1)
                     next_state = READ_ADDR_ACK                                                      ;
                 else    
                     next_state = ADDR                                                               ;

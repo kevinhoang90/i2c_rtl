@@ -49,7 +49,7 @@ module i2c_data_path_block (
             begin
                 if (start_cnt_i == 1)
                     temp_sda_o <= 0                                                             ;
-                else if (write_addr_cnt_i && counter_detect_edge_i == 0)        // write addr after negedge of scl 1 i2c core clock
+                else if (write_addr_cnt_i && counter_detect_edge_i == 1)        // write addr after negedge of scl 1 i2c core clock
                     temp_sda_o <= addr_rw_i[7 - counter_data_ack_o]                             ;
                 else if (write_data_cnt_i && counter_detect_edge_i == 1)        // write data after negedge of scl 1 i2c core clock
                     temp_sda_o <= data_i[7 - counter_data_ack_o]                                ;

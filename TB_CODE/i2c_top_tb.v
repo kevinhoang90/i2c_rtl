@@ -15,12 +15,12 @@ module i2c_top_tb();
     wire                scl_io                                                  ;
     wire                reset                                                   ;
     
-//    wire                start                                                   ;
-//    wire                stop                                                    ;
-//    wire    [7:0]       data_slave_read                                         ;
-//    wire                data_slave_read_valid                                   ;
-    reg                 sda_slave                                               ;
-    reg                 sda_slave_en                                            ;
+    wire                start                                                   ;
+    wire                stop                                                    ;
+    wire    [7:0]       data_slave_read                                         ;
+    wire                data_slave_read_valid                                   ;
+//    reg                 sda_slave                                               ;
+//    reg                 sda_slave_en                                            ;
     
     i2c_master_top dut(
         .i2c_core_clock_i(i2c_core_clock_i)                                     ,
@@ -38,16 +38,16 @@ module i2c_top_tb();
         .scl_io(scl_io)
     );
     
-    assign sda_io = sda_slave_en ? sda_slave : 1'bz                             ;
+//    assign sda_io = sda_slave_en ? sda_slave : 1'bz                             ;
 
-//    i2c_slave_model slave(
-//        .scl(scl_io)                                                            ,
-//        .sda(sda_io)                                                            ,
-//        .start(start)                                                           ,
-//        .stop(stop)                                                             ,
-//        .data_slave_read(data_slave_read)                                       ,
-//        .data_slave_read_valid(data_slave_read_valid)
-//    );
+    i2c_slave_model slave(
+        .scl(scl_io)                                                            ,
+        .sda(sda_io)                                                            ,
+        .start(start)                                                           ,
+        .stop(stop)                                                             ,
+        .data_slave_read(data_slave_read)                                       ,
+        .data_slave_read_valid(data_slave_read_valid)
+    );
 
     pullup(sda_io)                                                              ;
 
@@ -63,8 +63,8 @@ module i2c_top_tb();
         pwdata_i = 0                                                            ;
         pwrite_i = 0                                                            ;
         state_done_time_i = 4                                                   ;
-        sda_slave_en = 0                                                        ;
-        sda_slave = 0                                                           ;
+//        sda_slave_en = 0                                                        ;
+//        sda_slave = 0                                                           ;
         #10
 
         preset_n_i = 1                                                          ;
@@ -207,28 +207,28 @@ module i2c_top_tb();
         penable_i = 0                                                           ;
         $display("dut: %0d", $time);                                             //323
         
-        #3777
-        sda_slave_en = 1                                                        ;
-        sda_slave = 0                                                           ;
-        #400        
-        sda_slave_en = 0                                                        ;
-        #3200
-        sda_slave_en = 1                                                        ;
-        sda_slave = 0                                                           ;
-        #400
-        sda_slave_en = 0                                                        ;
-        #3200
-        sda_slave_en = 1                                                        ;
-        sda_slave = 0                                                           ;
-        #400
-        sda_slave_en = 0                                                        ;
+//        #3777
+//        sda_slave_en = 1                                                        ;
+//        sda_slave = 0                                                           ;
+//        #400        
+//        sda_slave_en = 0                                                        ;
+//        #3200
+//        sda_slave_en = 1                                                        ;
+//        sda_slave = 0                                                           ;
+//        #400
+//        sda_slave_en = 0                                                        ;
+//        #3200
+//        sda_slave_en = 1                                                        ;
+//        sda_slave = 0                                                           ;
+//        #400
+//        sda_slave_en = 0                                                        ;
         
         
-        #3200
-        sda_slave_en = 1                                                        ;
-        sda_slave = 0                                                           ;
-        #400
-        sda_slave_en = 0                                                        ;
+//        #3200
+//        sda_slave_en = 1                                                        ;
+//        sda_slave = 0                                                           ;
+//        #400
+//        sda_slave_en = 0                                                        ;
         
         #100000
         #1010
@@ -286,7 +286,7 @@ module i2c_top_tb();
         // penable_i = 0                                                           ;
     end
     
-    always #5 pclk_i = ~pclk_i                                                  ;
+    always #5 pclk_i = ~pclk_i                                                   ;
     always #25 i2c_core_clock_i = ~i2c_core_clock_i                              ;
 
 endmodule
