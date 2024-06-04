@@ -80,7 +80,6 @@ module i2c_master_top(
         .repeat_start_bit_i(cmd[7])                                                     ,
         .trans_fifo_empty_i(tx_fifo_read_empty)                                         ,
         .rev_fifo_full_i(rx_fifo_write_full)                                            ,
-        .state_done_time_i({3'b0,cmd[4:0]})                                             ,
         .counter_detect_edge_i(counter_detect_edge)                                     ,
         .counter_data_ack_i(counter_data_ack)                                           ,
         .prescaler_i(prescaler)                                                         ,

@@ -12,12 +12,12 @@ module i2c_clock_gen_block(
     always @(posedge i2c_core_clock_i, negedge reset_bit_n_i) 
     begin
         if (~reset_bit_n_i)
-            counter_detect_edge_o <= (2 * prescaler_i - 1)                                  ;
+            counter_detect_edge_o <= 0                                                      ;
         else
-            if (counter_detect_edge_o == 0)   
-                counter_detect_edge_o <= (2 * prescaler_i - 1)                              ;
+            if (counter_detect_edge_o == (2 * prescaler_i - 1))   
+                counter_detect_edge_o <= 0                                                  ;
             else
-                counter_detect_edge_o <= counter_detect_edge_o - 1                          ;
+                counter_detect_edge_o <= counter_detect_edge_o + 1                          ;
     end
 
     //gen scl clock
