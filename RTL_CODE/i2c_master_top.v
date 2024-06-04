@@ -64,7 +64,7 @@ module i2c_master_top(
     wire        [7:0]   status                                                          ;
     wire                tx_fifo_write_enable                                            ;
     wire                rx_fifo_read_enable                                             ;
-    assign status = {2'b00, tx_fifo_read_empty, rx_fifo_write_full, 4'b0000}            ;
+    assign status = {tx_fifo_read_empty, rx_fifo_write_full, 6'b000000}            ;
 
     //tristate   
     assign sda_io = sda_en == 1 ? data_path_sda_o : 1'bz                                ;
