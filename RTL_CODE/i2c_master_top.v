@@ -12,10 +12,13 @@ module i2c_master_top(
     //----------------------------------------------------------------------------------
     output      [7:0]   prdata_o                                                        ,
     output              pready_o                                                        ,
-    output              reset                                                           ,
+    output              pslverr                                                         ,
+    // output              reset                                                           ,
     inout               sda_io                                                          ,
     inout               scl_io
 );
+
+    assign pslverr = 0                                                                  ;
     //fsm block internal signal
     wire                start_cnt                                                       ;
     wire                write_addr_cnt                                                  ;
