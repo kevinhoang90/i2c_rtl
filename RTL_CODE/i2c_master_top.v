@@ -72,7 +72,7 @@ module i2c_master_top(
     //tristate   
     assign sda_io = sda_en == 1 ? data_path_sda_o : 1'bz                                ;
     assign scl_io = scl_en == 1 ? clock_gen_scl_o : 1                                   ;
-    assign reset = cmd[5]                                                               ;
+//    assign reset = cmd[5]                                                               ;
     i2c_fsm_block fsm(
         //input
         .i2c_core_clock_i(i2c_core_clock_i)                                             ,

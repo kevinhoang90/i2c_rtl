@@ -1,2 +1,9 @@
-create_clock -period 200.000 -name i2c_core_clock_i -waveform {0.000 100.000} -add [get_ports i2c_core_clock_i]
-create_clock -period 10.000 -name pclk_i -waveform {0.000 5.000} -add [get_ports pclk_i]
+#GPIO_DIP_SW_B6
+set_property PACKAGE_PIN AD25     [get_ports reset] ;# Bank  13 VCCO - VCCO_1V8 - IO_L15P_T2_DQS_13
+set_property IOSTANDARD  LVCMOS18 [get_ports reset] ;# Bank  13 VCCO - VCCO_1V8 - IO_L15P_T2_DQS_13
+#PMOD1_PIN7_R
+set_property PACKAGE_PIN A13      [get_ports scl_io_0] ;# Bank  16 VCCO - VCCO_3V3 - IO_0_16
+set_property IOSTANDARD  LVCMOS33 [get_ports scl_io_0] ;# Bank  16 VCCO - VCCO_3V3 - IO_0_16
+#PMOD1_PIN9_R
+set_property PACKAGE_PIN A14      [get_ports sda_io_0] ;# Bank  16 VCCO - VCCO_3V3 - IO_L1P_T0_16
+set_property IOSTANDARD  LVCMOS33 [get_ports sda_io_0] ;# Bank  16 VCCO - VCCO_3V3 - IO_L1P_T0_16
