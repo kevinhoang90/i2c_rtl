@@ -5,12 +5,12 @@ module i2c_master_top(
     input               preset_n_i                                                      , //apb reset
     input               penable_i                                                       ,
     input               psel_i                                                          ,
-    input       [7:0]   paddr_i                                                         ,
-    input       [7:0]   pwdata_i                                                        ,
+    input      [31:0]   paddr_i                                                         ,
+    input      [31:0]   pwdata_i                                                        ,
     input               pwrite_i                                                        ,
 
     //----------------------------------------------------------------------------------
-    output      [7:0]   prdata_o                                                        ,
+    output     [31:0]   prdata_o                                                        ,
     output              pready_o                                                        ,
     output              pslverr                                                         ,
     // output              reset                                                           ,

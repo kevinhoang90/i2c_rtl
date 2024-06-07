@@ -4,11 +4,11 @@ module i2c_register_block(
     input                  preset_n_i                                                   , //reset signal
     input                  penable_i                                                    , //enable signal from master to slave
     input                  psel_i                                                       , //select signal from master to slave
-    input      [7:0]       paddr_i                                                      , //address master send to slave
-    input      [7:0]       pwdata_i                                                     , //data master send to slave
+    input     [31:0]       paddr_i                                                      , //address master send to slave
+    input     [31:0]       pwdata_i                                                     , //data master send to slave
     input                  pwrite_i                                                     , //read/write signal from master
          
-    output reg [7:0]       prdata_o                                                     , //data slave send to master
+    output reg[31:0]       prdata_o                                                     , //data slave send to master
     output reg             pready_o                                                     , //ready signal slave send to master
 
     //-------------------------------register block - i2c core---------------------------
@@ -56,36 +56,36 @@ module i2c_register_block(
                     begin
                         if (pwrite_i == 0)
                                 begin
-                                    case (paddr_i)
+                                    case (paddr_i[7:0])
                                         8'h00:                                          //read from prescaler register
-                                            prdata_o <= prescaler                       ;
+                                            prdata_o <= {24'b0, prescaler}                       ;
                                         8'h01:                                          //read from cmd register
-                                            prdata_o <= cmd                             ;
+                                            prdata_o <= {24'b0, cmd}                             ;
                                         8'h02:                                          //read from transmit register
-                                            prdata_o <= transmit                        ;
+                                            prdata_o <= {24'b0, transmit}                        ;
                                         8'h03:                                          //read from receive register
-                                            prdata_o <= receive_i                       ;
+                                            prdata_o <= {24'b0, receive_i}                       ;
                                         8'h04:                                          //read from address register
-                                            prdata_o <= address_rw                      ;
+                                            prdata_o <= {24'b0, address_rw}                      ;
                                         8'h05:                                          //read from status register
-                                            prdata_o <= status_i                        ;
+                                            prdata_o <= {24'b0, status_i}                        ;
                                     endcase
                                 end
                     end
                 else if (psel_i == 1 && penable_i == 1)
                     begin
                         if (pwrite_i == 1)
-                            case (paddr_i)
+                            case (paddr_i[7:0])
                                 8'h00:                                                  //write to prescaler register                                 
-                                    prescaler <= pwdata_i                               ;
+                                    prescaler <= pwdata_i[7:0]                          ;
                                 8'h01:                                                  //write to cmd register                                                 
-                                    cmd <= pwdata_i                                     ;                                
+                                    cmd <= pwdata_i[7:0]                                ;                                
                                 8'h02:                                                  //write to transmit register
-                                    transmit <= pwdata_i                                ;
+                                    transmit <= pwdata_i[7:0]                           ;
                                 //8'h03:                                                receive register is read only for cpu                                                 
                             
                                 8'h04:                                                  //write to address register                                                         
-                                    address_rw <= pwdata_i                              ;
+                                    address_rw <= pwdata_i[7:0]                         ;
                                 //8'h05:                                                //status register is read only for cpu                       
                             endcase
                         
