@@ -53,15 +53,16 @@ module i2c_data_path_block (
                     temp_sda_o <= addr_rw_i[7 - counter_data_ack_o]                             ;
                 else if (write_data_cnt_i && counter_detect_edge_i == 1)        // write data after negedge of scl 1 i2c core clock
                     temp_sda_o <= data_i[7 - counter_data_ack_o]                                ;
-                else if (write_ack_cnt_i && counter_detect_edge_i == 1)         // write ack after negedge of scl 1 i2c core clock
+                else if (write_ack_cnt_i && counter_detect_edge_i == 2)         // write ack after negedge of scl 1 i2c core clock
                     temp_sda_o <= ack_bit_i                                                     ;
                 else if (stop_cnt_i && counter_detect_edge_i == 1)
                     temp_sda_o <= 0                                                             ;
                 else if (repeat_start_cnt_i)
-                    if (counter_state_done_time_repeat_start_i > 1)
+                    if (counter_state_done_time_repeat_start_i < (2 * prescaler_i + 1))
                         temp_sda_o <= 1                                                         ;
-                    else if (counter_state_done_time_repeat_start_i == 1)
+                    else
                         temp_sda_o <= 0                                                         ;
+                  
             end
     end
 

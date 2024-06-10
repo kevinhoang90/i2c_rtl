@@ -28,6 +28,8 @@ module i2c_fsm_block(
     output reg          scl_en_o                                                                    , // enable scl
     output reg          sda_en_o                                                                    , // enable sda
     output reg  [7:0]   counter_state_done_time_repeat_start_o                                      , //for state: repeat start
+    output reg          bus_free                                                                    ,
+    output reg          addr_done                                                                   ,
     output              ack_bit_o                                                  
     //---------------------------------------------------------
 );
@@ -51,14 +53,6 @@ module i2c_fsm_block(
     wire [3:0] next_state_temp                                                                      ;
     assign ack_bit_o = rev_fifo_full_i                                                              ;
     assign next_state_temp = next_state                                                             ;
-     
-    always @(posedge i2c_core_clock_i, negedge reset_bit_n_i)
-    begin
-        if (~reset_bit_n_i)
-            counter_state_done_time_repeat_start_o <= 0                                             ;
-        else
-            counter_state_done_time_repeat_start_o = counter_state_done_time_start_stop             ;
-    end     
     
     //register state logic
     always @(posedge i2c_core_clock_i, negedge reset_bit_n_i)
@@ -98,15 +92,18 @@ module i2c_fsm_block(
                 if (counter_data_ack_i == 0 && counter_detect_edge_i == 0)
                     begin
                         if (sda_i == 1)
-                            if (repeat_start_bit_i == 1)
-                                  next_state = REPEAT_START                                         ;
-                            else
                                   next_state = STOP                                                 ;
                         else
                             if (rw_bit_i == 1)
-                              next_state = READ_DATA                                                ;
+                                if (rev_fifo_full_i)
+                                    next_state = STOP                                               ;
+                                else
+                                    next_state = READ_DATA                                          ;
                             else
-                              next_state = WRITE_DATA                                               ;
+                                if (trans_fifo_empty_i)
+                                    next_state = STOP                                               ;
+                                else
+                                    next_state = WRITE_DATA                                         ;
                     end
                 else
                     next_state = READ_ADDR_ACK                                                      ;
@@ -137,7 +134,6 @@ module i2c_fsm_block(
                             next_state = WRITE_DATA                                                 ;
                 else
                     next_state = READ_DATA_ACK                                                      ;
-                
             end
             //---------------------------------------------------------
             WRITE_DATA_ACK: begin                                                                       //if rev fifo is not full, continue read data
@@ -154,7 +150,7 @@ module i2c_fsm_block(
             end
             //---------------------------------------------------------
             REPEAT_START: begin
-                 if (counter_state_done_time_repeat_start_o == 0)
+                 if (counter_state_done_time_repeat_start_o == (4 * prescaler_i - 1))
                     next_state = ADDR                                                               ;
                 else
                     next_state = REPEAT_START                                                       ;
@@ -180,6 +176,7 @@ module i2c_fsm_block(
         case (current_state)
             //---------------------------------------------------------
             IDLE: begin
+                bus_free = 1                                                                        ;
                 sda_en_o = 0                                                                        ;
                 scl_en_o = 0                                                                        ;
                 start_cnt_o = 0                                                                     ;
@@ -192,7 +189,8 @@ module i2c_fsm_block(
                 repeat_start_cnt_o = 0                                                              ;
             end
             //---------------------------------------------------------
-            START: begin  
+            START: begin
+                bus_free = 0                                                                        ;  
                 sda_en_o = 1                                                                        ;
                 scl_en_o = 0                                                                        ;
                 start_cnt_o = 1                                                                     ; //fsm inform to data_path and clock_gen generate start condition
@@ -206,6 +204,7 @@ module i2c_fsm_block(
             end
             //---------------------------------------------------------
             ADDR: begin
+                bus_free = 0                                                                        ;
                 sda_en_o = 1                                                                        ;
                 scl_en_o = 1                                                                        ;
                 start_cnt_o = 0                                                                     ;
@@ -220,6 +219,7 @@ module i2c_fsm_block(
             end
             //---------------------------------------------------------
             READ_ADDR_ACK: begin
+                bus_free = 0                                                                        ;
                 sda_en_o = 0                                                                        ;
                 scl_en_o = 1                                                                        ;
                 start_cnt_o = 0                                                                     ;
@@ -233,6 +233,7 @@ module i2c_fsm_block(
             end
             //---------------------------------------------------------
             WRITE_DATA: begin
+                bus_free = 0                                                                        ;
                 sda_en_o = 1                                                                        ;
                 scl_en_o = 1                                                                        ;
                 start_cnt_o = 0                                                                     ;
@@ -246,6 +247,7 @@ module i2c_fsm_block(
             end
             //---------------------------------------------------------
             READ_DATA: begin
+                bus_free = 0                                                                        ;
                 sda_en_o = 0                                                                        ;
                 scl_en_o = 1                                                                        ;
                 start_cnt_o = 0                                                                     ;
@@ -259,6 +261,7 @@ module i2c_fsm_block(
             end
             //---------------------------------------------------------
             READ_DATA_ACK: begin
+                bus_free = 0                                                                        ;
                 sda_en_o = 0                                                                        ;
                 scl_en_o = 1                                                                        ;
                 start_cnt_o = 0                                                                     ;
@@ -272,6 +275,7 @@ module i2c_fsm_block(
             end
             //---------------------------------------------------------
             WRITE_DATA_ACK: begin
+                bus_free = 0                                                                        ;
                 sda_en_o = 1                                                                        ;
                 scl_en_o = 1                                                                        ;
                 start_cnt_o = 0                                                                     ;
@@ -285,11 +289,12 @@ module i2c_fsm_block(
             end
             //---------------------------------------------------------
             REPEAT_START: begin
+                bus_free = 0                                                                        ;
                 sda_en_o = 1                                                                        ;
-                if (counter_state_done_time_repeat_start_o <= prescaler_i)
-                    scl_en_o = 0                                                                    ;
-                else
+                if (counter_state_done_time_repeat_start_o < prescaler_i)
                     scl_en_o = 1                                                                    ;
+                else
+                    scl_en_o = 0                                                                    ;
                 start_cnt_o = 0                                                                     ;
                 write_addr_cnt_o = 0                                                                ;
                 write_ack_cnt_o = 0                                                                 ;
@@ -301,6 +306,7 @@ module i2c_fsm_block(
             end
             //---------------------------------------------------------
             STOP: begin
+                bus_free = 0                                                                        ;
                 sda_en_o = 1                                                                        ;
                 scl_en_o = 1                                                                        ;
                 start_cnt_o = 0                                                                     ;
@@ -314,6 +320,7 @@ module i2c_fsm_block(
             end
             //---------------------------------------------------------
              default: begin
+                bus_free = 0                                                                        ;
                 sda_en_o = 0                                                                        ;
                 scl_en_o = 0                                                                        ;
                 start_cnt_o = 0                                                                     ;
@@ -329,7 +336,7 @@ module i2c_fsm_block(
     end
     
     // counter state done time for start, stop condition
-      always @(posedge i2c_core_clock_i, negedge reset_bit_n_i)
+     always @(posedge i2c_core_clock_i, negedge reset_bit_n_i)
      begin
         
         if (~reset_bit_n_i)
@@ -352,6 +359,21 @@ module i2c_fsm_block(
     end
     
     // repeat start state have not handled yet
+    always @(posedge i2c_core_clock_i, negedge reset_bit_n_i)
+     begin
+        
+        if (~reset_bit_n_i)
+            counter_state_done_time_repeat_start_o <= 0                                             ;
+        else
+        begin
+            if (current_state == REPEAT_START)
+                counter_state_done_time_repeat_start_o <= counter_state_done_time_repeat_start_o + 1;
+            if (counter_state_done_time_repeat_start_o == (4 * prescaler_i - 1))
+                counter_state_done_time_repeat_start_o <= 0                                         ;
+        end
+    end
+    
+    
     
     //output control signals to trans fifo block
     always @(posedge i2c_core_clock_i, negedge reset_bit_n_i) 
@@ -397,5 +419,19 @@ module i2c_fsm_block(
                 
             end
     end
+    
+     always @(posedge i2c_core_clock_i, negedge reset_bit_n_i) 
+    begin
+        if (~reset_bit_n_i)
+            addr_done <= 0                                                                          ;
+        else
+            begin
+                if (current_state >= READ_ADDR_ACK)
+                    addr_done <= 1                                                                  ;
+                else
+                    addr_done <= 0                                                                  ;
+            end
+    end
+    
     
 endmodule

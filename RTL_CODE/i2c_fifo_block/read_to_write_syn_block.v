@@ -1,6 +1,6 @@
 module read_to_write_syn_block
 #(
-    parameter                       addr_size = 3
+    parameter                       addr_size = 4
 )
 (
     input                           write_clock_i                               , //clock write domain

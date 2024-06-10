@@ -66,9 +66,11 @@
 ##### * Status register 
 |Bit|Access|Description|
 |:-:|:----:|:---------|
-|7|R|TX FIFO EMPTY|
-|6|R|RX FIFO FULL|
-|5:0||Reserved|
+|7|R|TX fifo empty|
+|6|R|RX fifo full|
+|5|R|Bus free|
+|4|R|slave's address was transmited|
+|3:0||Reserved|
 
 #### c. APB interface
 ##### * Waveform write
@@ -116,10 +118,20 @@
 |paddr[7:0]|
 |pwdata[7:0]|
 |pwrite|
-
+  
  - **Prescaler register** is optional for configuration.
  - Enable **reset i2c core** to set all variables, regs to the default value (user needs to disable it later).
  - Transfer **address** of i2c slave and read write bit
  - if cpu wants to **write**, cpu can **transfer data** before writing phase. Data will be saved in transfifo.
  - Next, **enable i2c core** and i2c core will perform its tasks.
  - After stop condition, if cpu want to communicate with i2c slave, cpu have to reconfigure i2c core **(address of slave, rw bit, data)**.
+
+### Example: Write data to i2c slave
+
+|ORDER|COMMAND|REGISTER - ADDR|CODE|
+|:---:|:---|:----:|:----:|
+|1|reset i2c core|cmd - 0x01|0x20|
+|2|configure prescaler|prescaler - 0x00|>= 0x04|
+|3|configure i2c slave's addr and read/write|address_rw - 0x04|0xXX|
+|4|data (n times)|transmit - 0x02|0xXX|
+|5|enable i2c core|cmd - 0x01|0x40|

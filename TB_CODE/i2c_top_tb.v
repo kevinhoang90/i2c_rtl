@@ -4,12 +4,11 @@ module i2c_top_tb();
     reg                 preset_n_i                                              ;
     reg                 penable_i                                               ;
     reg                 psel_i                                                  ;
-    reg     [7:0]       paddr_i                                                 ;
-    reg     [7:0]       pwdata_i                                                ;
+    reg     [31:0]      paddr_i                                                 ;
+    reg     [31:0]      pwdata_i                                                ;
     reg                 pwrite_i                                                ;
-    reg     [7:0]       state_done_time_i                                       ;
 
-    wire    [7:0]       prdata_o                                                ;
+    wire    [31:0]      prdata_o                                                ;
     wire                pready_o                                                ;
     wire                sda_io                                                  ;
     wire                scl_io                                                  ;
@@ -45,12 +44,13 @@ module i2c_top_tb();
         .sda(sda_io)                                                            ,
         .start(start)                                                           ,
         .stop(stop)                                                             ,
+        .reset(reset)                                                           ,
         .data_slave_read(data_slave_read)                                       ,
         .data_slave_read_valid(data_slave_read_valid)
     );
 
     pullup(sda_io)                                                              ;
-
+    pullup(scl_io)                                                              ;
     initial 
     begin
         
@@ -62,7 +62,6 @@ module i2c_top_tb();
         paddr_i = 0                                                             ;
         pwdata_i = 0                                                            ;
         pwrite_i = 0                                                            ;
-        state_done_time_i = 4                                                   ;
 //        sda_slave_en = 0                                                        ;
 //        sda_slave = 0                                                           ;
         #10
@@ -127,70 +126,202 @@ module i2c_top_tb();
         psel_i = 0                                                              ;
         penable_i = 0                                                           ;
 
-        #10                                                                      
-        psel_i = 1                                                              ; 
-        penable_i = 0                                                           ;
-        pwrite_i = 1                                                            ;
-        paddr_i = 8'h02                                                         ;
-        pwdata_i = 8'b11010101                                                  ; //data value
-        #10
-        psel_i = 1                                                              ;
-        penable_i = 1                                                           ;
-        #10
-        psel_i = 0                                                              ;
-        penable_i = 0                                                           ;
+//        #10                                                                      
+//        psel_i = 1                                                              ; 
+//        penable_i = 0                                                           ;
+//        pwrite_i = 1                                                            ;
+//        paddr_i = 8'h02                                                         ;
+//        pwdata_i = 8'b11010101                                                  ; //data value
+//        #10
+//        psel_i = 1                                                              ;
+//        penable_i = 1                                                           ;
+//        #10
+//        psel_i = 0                                                              ;
+//        penable_i = 0                                                           ;
         
-        #10                                                                      
-        psel_i = 1                                                              ; 
-        penable_i = 0                                                           ;
-        pwrite_i = 1                                                            ;
-        paddr_i = 8'h02                                                         ;
-        pwdata_i = 8'b11010001                                                  ; //data value
-        #10
-        psel_i = 1                                                              ;
-        penable_i = 1                                                           ;
-        #10
-        psel_i = 0                                                              ;
-        penable_i = 0                                                           ;
+//        #10                                                                      
+//        psel_i = 1                                                              ; 
+//        penable_i = 0                                                           ;
+//        pwrite_i = 1                                                            ;
+//        paddr_i = 8'h02                                                         ;
+//        pwdata_i = 8'b11010001                                                  ; //data value
+//        #10
+//        psel_i = 1                                                              ;
+//        penable_i = 1                                                           ;
+//        #10
+//        psel_i = 0                                                              ;
+//        penable_i = 0                                                           ;
         
-        #10                                                                      
-        psel_i = 1                                                              ; 
-        penable_i = 0                                                           ;
-        pwrite_i = 1                                                            ;
-        paddr_i = 8'h02                                                         ;
-        pwdata_i = 8'b10110101                                                  ; //data value
-        #10
-        psel_i = 1                                                              ;
-        penable_i = 1                                                           ;
-        #10
-        psel_i = 0                                                              ;
-        penable_i = 0                                                           ;
+//        #10                                                                      
+//        psel_i = 1                                                              ; 
+//        penable_i = 0                                                           ;
+//        pwrite_i = 1                                                            ;
+//        paddr_i = 8'h02                                                         ;
+//        pwdata_i = 8'b10110101                                                  ; //data value
+//        #10
+//        psel_i = 1                                                              ;
+//        penable_i = 1                                                           ;
+//        #10
+//        psel_i = 0                                                              ;
+//        penable_i = 0                                                           ;
         
-        #10                                                                      
-        psel_i = 1                                                              ; 
-        penable_i = 0                                                           ;
-        pwrite_i = 1                                                            ;
-        paddr_i = 8'h02                                                         ;
-        pwdata_i = 8'b11111101                                                  ; //data value
-        #10
-        psel_i = 1                                                              ;
-        penable_i = 1                                                           ;
-        #10
-        psel_i = 0                                                              ;
-        penable_i = 0                                                           ;
+//        #10                                                                      
+//        psel_i = 1                                                              ; 
+//        penable_i = 0                                                           ;
+//        pwrite_i = 1                                                            ;
+//        paddr_i = 8'h02                                                         ;
+//        pwdata_i = 8'b11111101                                                  ; //data value
+//        #10
+//        psel_i = 1                                                              ;
+//        penable_i = 1                                                           ;
+//        #10
+//        psel_i = 0                                                              ;
+//        penable_i = 0                                                           ;
         
-        #10                                                                      
-        psel_i = 1                                                              ; 
-        penable_i = 0                                                           ;
-        pwrite_i = 1                                                            ;
-        paddr_i = 8'h02                                                         ;
-        pwdata_i = 8'b11110111                                                  ; //data value
-        #10
-        psel_i = 1                                                              ;
-        penable_i = 1                                                           ;
-        #10
-        psel_i = 0                                                              ;
-        penable_i = 0                                                           ;
+//        #10                                                                      
+//        psel_i = 1                                                              ; 
+//        penable_i = 0                                                           ;
+//        pwrite_i = 1                                                            ;
+//        paddr_i = 8'h02                                                         ;
+//        pwdata_i = 8'b11110111                                                  ; //data value
+//        #10
+//        psel_i = 1                                                              ;
+//        penable_i = 1                                                           ;
+//        #10
+//        psel_i = 0                                                              ;
+//        penable_i = 0                                                           ;
+        
+//        #10                                                                      
+//        psel_i = 1                                                              ; 
+//        penable_i = 0                                                           ;
+//        pwrite_i = 1                                                            ;
+//        paddr_i = 8'h02                                                         ;
+//        pwdata_i = 8'b11110111                                                  ; //data value
+//        #10
+//        psel_i = 1                                                              ;
+//        penable_i = 1                                                           ;
+//        #10
+//        psel_i = 0                                                              ;
+//        penable_i = 0                                                           ;
+        
+//        #10                                                                      
+//        psel_i = 1                                                              ; 
+//        penable_i = 0                                                           ;
+//        pwrite_i = 1                                                            ;
+//        paddr_i = 8'h02                                                         ;
+//        pwdata_i = 8'b11110111                                                  ; //data value
+//        #10
+//        psel_i = 1                                                              ;
+//        penable_i = 1                                                           ;
+//        #10
+//        psel_i = 0                                                              ;
+//        penable_i = 0                                                           ;
+        
+//        #10                                                                      
+//        psel_i = 1                                                              ; 
+//        penable_i = 0                                                           ;
+//        pwrite_i = 1                                                            ;
+//        paddr_i = 8'h02                                                         ;
+//        pwdata_i = 8'b11110111                                                  ; //data value
+//        #10
+//        psel_i = 1                                                              ;
+//        penable_i = 1                                                           ;
+//        #10
+//        psel_i = 0                                                              ;
+//        penable_i = 0                                                           ;
+        
+//        #10                                                                      
+//        psel_i = 1                                                              ; 
+//        penable_i = 0                                                           ;
+//        pwrite_i = 1                                                            ;
+//        paddr_i = 8'h02                                                         ;
+//        pwdata_i = 8'b11110111                                                  ; //data value
+//        #10
+//        psel_i = 1                                                              ;
+//        penable_i = 1                                                           ;
+//        #10
+//        psel_i = 0                                                              ;
+//        penable_i = 0                                                           ;
+        
+//        #10                                                                      
+//        psel_i = 1                                                              ; 
+//        penable_i = 0                                                           ;
+//        pwrite_i = 1                                                            ;
+//        paddr_i = 8'h02                                                         ;
+//        pwdata_i = 8'b11110111                                                  ; //data value
+//        #10
+//        psel_i = 1                                                              ;
+//        penable_i = 1                                                           ;
+//        #10
+//        psel_i = 0                                                              ;
+//        penable_i = 0                                                           ;
+        
+//        #10                                                                      
+//        psel_i = 1                                                              ; 
+//        penable_i = 0                                                           ;
+//        pwrite_i = 1                                                            ;
+//        paddr_i = 8'h02                                                         ;
+//        pwdata_i = 8'b11110111                                                  ; //data value
+//        #10
+//        psel_i = 1                                                              ;
+//        penable_i = 1                                                           ;
+//        #10
+//        psel_i = 0                                                              ;
+//        penable_i = 0                                                           ;
+        
+//        #10                                                                      
+//        psel_i = 1                                                              ; 
+//        penable_i = 0                                                           ;
+//        pwrite_i = 1                                                            ;
+//        paddr_i = 8'h02                                                         ;
+//        pwdata_i = 8'b11110111                                                  ; //data value
+//        #10
+//        psel_i = 1                                                              ;
+//        penable_i = 1                                                           ;
+//        #10
+//        psel_i = 0                                                              ;
+//        penable_i = 0                                                           ;
+        
+//        #10                                                                      
+//        psel_i = 1                                                              ; 
+//        penable_i = 0                                                           ;
+//        pwrite_i = 1                                                            ;
+//        paddr_i = 8'h02                                                         ;
+//        pwdata_i = 8'b11110111                                                  ; //data value
+//        #10
+//        psel_i = 1                                                              ;
+//        penable_i = 1                                                           ;
+//        #10
+//        psel_i = 0                                                              ;
+//        penable_i = 0                                                           ;
+        
+//        #10                                                                      
+//        psel_i = 1                                                              ; 
+//        penable_i = 0                                                           ;
+//        pwrite_i = 1                                                            ;
+//        paddr_i = 8'h02                                                         ;
+//        pwdata_i = 8'b11110111                                                  ; //data value
+//        #10
+//        psel_i = 1                                                              ;
+//        penable_i = 1                                                           ;
+//        #10
+//        psel_i = 0                                                              ;
+//        penable_i = 0                                                           ;
+        
+//        #10                                                                      
+//        psel_i = 1                                                              ; 
+//        penable_i = 0                                                           ;
+//        pwrite_i = 1                                                            ;
+//        paddr_i = 8'h02                                                         ;
+//        pwdata_i = 8'b11110111                                                  ; //data value
+//        #10
+//        psel_i = 1                                                              ;
+//        penable_i = 1                                                           ;
+//        #10
+//        psel_i = 0                                                              ;
+//        penable_i = 0                                                           ;
+        
+        
         
         //cpu enable i2c core and write repeat start bit
         #10                                                                      
@@ -198,14 +329,14 @@ module i2c_top_tb();
         penable_i = 0                                                           ;
         pwrite_i = 1                                                            ;
         paddr_i = 8'h01                                                         ;
-        pwdata_i = 8'b01100000                                                  ; //cmd register
+        pwdata_i = 8'b11100000                                                  ; //cmd register
         #10
         psel_i = 1                                                              ;
         penable_i = 1                                                           ;
         #10
         psel_i = 0                                                              ;
         penable_i = 0                                                           ;
-        $display("dut: %0d", $time);                                             //323
+        
         
 //        #3777
 //        sda_slave_en = 1                                                        ;
@@ -230,8 +361,7 @@ module i2c_top_tb();
 //        #400
 //        sda_slave_en = 0                                                        ;
         
-        #100000
-        #1010
+        #10100
         #10
         psel_i = 1                                                              ; 
         penable_i = 0                                                           ;

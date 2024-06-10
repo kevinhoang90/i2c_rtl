@@ -1,7 +1,7 @@
 module fifo_top_block
 #(
     parameter                       data_size = 8                                       , 
-    parameter                       addr_size = 3
+    parameter                       addr_size = 4
 )
 (
     input                           read_clock_i                                        , //clock in read domain 

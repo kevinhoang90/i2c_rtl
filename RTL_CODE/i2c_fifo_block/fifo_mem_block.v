@@ -1,7 +1,7 @@
 module fifo_mem_block 
 #(
     parameter                   data_size = 8                               ,
-    parameter                   addr_size = 3
+    parameter                   addr_size = 4
 )
 (
     input                       write_clock_i                               , //clock write domain

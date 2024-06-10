@@ -13,7 +13,7 @@ module i2c_master_top(
     output     [31:0]   prdata_o                                                        ,
     output              pready_o                                                        ,
     output              pslverr                                                         ,
-    // output              reset                                                           ,
+    output              reset                                                           ,
     inout               sda_io                                                          ,
     inout               scl_io
 );
@@ -34,7 +34,8 @@ module i2c_master_top(
     wire                sda_en                                                          ;
     wire        [7:0]   counter_state_done_time_repeat_start                            ;
     wire                ack_bit                                                         ;
-
+    wire                bus_free                                                        ;
+    wire                addr_done                                                       ;
     
     //clock gen block internal signal
     wire        [7:0]   counter_detect_edge                                             ;
@@ -67,12 +68,13 @@ module i2c_master_top(
     wire        [7:0]   status                                                          ;
     wire                tx_fifo_write_enable                                            ;
     wire                rx_fifo_read_enable                                             ;
-    assign status = {tx_fifo_read_empty, rx_fifo_write_full, 6'b000000}            ;
+    assign status = {tx_fifo_read_empty, rx_fifo_write_full, bus_free, 
+                    addr_done, 4'b0}                                                    ;
 
     //tristate   
     assign sda_io = sda_en == 1 ? data_path_sda_o : 1'bz                                ;
-    assign scl_io = scl_en == 1 ? clock_gen_scl_o : 1                                   ;
-//    assign reset = cmd[5]                                                               ;
+    assign scl_io = scl_en == 1 ? clock_gen_scl_o : 1'bz                                ;
+    assign reset = cmd[5]                                                               ;
     i2c_fsm_block fsm(
         //input
         .i2c_core_clock_i(i2c_core_clock_i)                                             ,
@@ -101,6 +103,8 @@ module i2c_master_top(
         .scl_en_o(scl_en)                                                               ,
         .sda_en_o(sda_en)                                                               ,
         .counter_state_done_time_repeat_start_o(counter_state_done_time_repeat_start)   ,
+        .bus_free(bus_free)                                                             ,
+        .addr_done(addr_done)                                                           ,
         .ack_bit_o(ack_bit)
     );
 
