@@ -8,6 +8,7 @@ module i2c_fsm_block(
     input               repeat_start_bit_i                                                          , // repeat start bit from cmd register
     input               trans_fifo_empty_i                                                          , // status of trans fifo from fifo block
     input               rev_fifo_full_i                                                             , // status of rev fifo from fifo block
+    input               mode_i                                                                      , // read/write 1 byte or n_bytes (low - 1byte, high - nbytes)
     input       [7:0]   counter_detect_edge_i                                                       , //counter detect edge from clock generator
     input       [7:0]   counter_data_ack_i                                                          , //counter data, ack from datapath
     input       [7:0]   prescaler_i                                                                 , //value of prescaler register
@@ -51,7 +52,7 @@ module i2c_fsm_block(
     reg       state_of_write_rx_fifo                                                                ;
     reg       state_of_read_tx_fifo                                                                 ;
     wire [3:0] next_state_temp                                                                      ;
-    assign ack_bit_o = rev_fifo_full_i                                                              ;
+    assign ack_bit_o = mode_i ? rev_fifo_full_i : 1                                                 ;
     assign next_state_temp = next_state                                                             ;
     
     //register state logic
@@ -110,7 +111,7 @@ module i2c_fsm_block(
             end
             //---------------------------------------------------------
             WRITE_DATA: begin                                                                        //write data   
-                if (counter_data_ack_i == 8 && counter_detect_edge_i == 0)
+                if (counter_data_ack_i == 8 && counter_detect_edge_i == 1)
                     next_state = READ_DATA_ACK                                                      ;
                 else
                     next_state = WRITE_DATA                                                         ;
@@ -138,7 +139,7 @@ module i2c_fsm_block(
             //---------------------------------------------------------
             WRITE_DATA_ACK: begin                                                                       //if rev fifo is not full, continue read data
                 if (counter_data_ack_i == 0 && counter_detect_edge_i == 0) 
-                    if (rev_fifo_full_i == 0 )
+                    if (rev_fifo_full_i == 0 && mode_i)
                             next_state = READ_DATA                                                  ;
                     else
                         if (repeat_start_bit_i == 1)               

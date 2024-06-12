@@ -27,12 +27,35 @@ module i2c_register_block(
     reg [7:0] cmd                                                                       ; //0x01
     reg [7:0] transmit                                                                  ; //0x02
     reg [7:0] address_rw                                                                ; //0x04
+
+    reg       stop_cnt_syn_tem                                                          ;
+    reg       stop_cnt_syn_reg                                                          ;  
     
+    reg [7:0] status_reg_syn                                                            ;
+    reg [7:0] status_reg_syn_tem                                                        ;
 
     assign prescaler_o = prescaler                                                      ; //update output of register internal
     assign cmd_o = cmd                                                                  ;
     assign address_rw_o = address_rw                                                    ;
     assign transmit_o = transmit                                                        ;
+
+
+    //synchonize signal from FSM (i2c_core_clock domain) to REG_BLOCK (pclk domain)
+    always @(posedge pclk_i, negedge preset_n_i) begin
+        if (~preset_n_i) 
+            {stop_cnt_syn_reg, stop_cnt_syn_tem} <= 0                                   ;
+        else
+            {stop_cnt_syn_reg, stop_cnt_syn_tem} <= {stop_cnt_syn_tem, stop_cnt_i}      ;
+    end
+
+    always @(posedge pclk_i, negedge preset_n_i) begin
+        if (~preset_n_i) 
+            {status_reg_syn, status_reg_syn_tem} <= 0                                   ;
+        else
+            {status_reg_syn, status_reg_syn_tem} <= {status_reg_syn_tem, status_i}      ;
+    end
+
+    //----------------------------------------------------------------------------------
 
     always @(posedge pclk_i, negedge preset_n_i) 
     begin
@@ -48,7 +71,7 @@ module i2c_register_block(
                 pready_o <= 1                                                           ;
             end
         else
-            if (stop_cnt_i == 1)
+            if (stop_cnt_syn_reg == 1)
                 cmd[6] <= 0                                                             ; //disable enable bit when i2c core is stop condition
             else
                 begin
@@ -68,7 +91,7 @@ module i2c_register_block(
                                         8'h04:                                          //read from address register
                                             prdata_o <= {24'b0, address_rw}                      ;
                                         8'h05:                                          //read from status register
-                                            prdata_o <= {24'b0, status_i}                        ;
+                                            prdata_o <= {24'b0, status_reg_syn}                  ;
                                     endcase
                                 end
                     end

@@ -66,7 +66,7 @@
 //               Added headers.
 //
 `timescale 1ns/1ns
-module i2c_slave_model (scl, sda, start, stop, data_slave_read, data_slave_read_valid, reset);
+module i2c_slave_model (scl, sda, start, stop, data_slave_read, data_slave_read_valid);
 
 	//
 	// parameters
@@ -78,7 +78,6 @@ module i2c_slave_model (scl, sda, start, stop, data_slave_read, data_slave_read_
 	//
 	input scl;
 	inout sda;
-	input reset;
 	output start;
 	output stop;
 	output [7:0] data_slave_read;
@@ -192,8 +191,8 @@ module i2c_slave_model (scl, sda, start, stop, data_slave_read, data_slave_read_
 	assign i2c_reset = sta || sto;
 
 	// generate statemachine
-	always @(negedge scl or posedge sto or negedge reset)
-	  if (sto || (sta && !d_sta) || ~reset)
+	always @(negedge scl or posedge sto )
+	  if (sto || (sta && !d_sta))
 	    begin
 	        state <= #1 idle; // reset statemachine
 

@@ -45,7 +45,8 @@
 |7|RW|Repeat start bit active high|
 |6|RW|Enable i2c core active high|
 |5|RW|Reset async i2c core active low|
-|4:0||Reserved|
+|4|RW|Mode read: low - 1byte, high - nbytes |
+|3:0||Reserved|
 
 ##### * Transmit register 
 |Bit|Access|Description|
@@ -126,12 +127,15 @@
  - Next, **enable i2c core** and i2c core will perform its tasks.
  - After stop condition, if cpu want to communicate with i2c slave, cpu have to reconfigure i2c core **(address of slave, rw bit, data)**.
 
-### Example: Write data to i2c slave
+### Example: Write and read 1 byte data 
 
 |ORDER|COMMAND|REGISTER - ADDR|CODE|
 |:---:|:---|:----:|:----:|
 |1|reset i2c core|cmd - 0x01|0x20|
 |2|configure prescaler|prescaler - 0x00|>= 0x04|
-|3|configure i2c slave's addr and read/write|address_rw - 0x04|0xXX|
-|4|data (n times)|transmit - 0x02|0xXX|
+|3|configure i2c slave's addr and write_bit|address_rw - 0x04|8b'iiiiiii0|
+|4|data|transmit - 0x02|0xii|
 |5|enable i2c core|cmd - 0x01|0x40|
+|6|check bus free (read op)|status - 0x05||
+|7|write i2c slave's addr and read_bit|status - 0x05|8b'iiiiiii0|
+|8|enable i2c core and mode read 1 byte|cmd - 0x01|0x70|
