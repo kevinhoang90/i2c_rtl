@@ -30,7 +30,20 @@
 *
 ******************************************************************************/
 
-//after implement RTL code into FPGA, I'll use i2c slave ADXL345 to test i2c master's function 
+/*
+ * helloworld.c: simple test application
+ *
+ * This application configures UART 16550 to baud rate 9600.
+ * PS7 UART (Zynq) is not initialized by this application, since
+ * bootrom/bsp configures it to baud rate 115200
+ *
+ * ------------------------------------------------
+ * | UART TYPE   BAUD RATE                        |
+ * ------------------------------------------------
+ *   uartns550   9600
+ *   uartlite    Configurable only in HW design
+ *   ps7_uart    115200 (configured by bootrom/bsp)
+ */
 
 #include <stdio.h>
 #include "platform.h"
@@ -42,18 +55,26 @@
 int main()
 {
 	u32* data;
-	data = (u32*) malloc (6 * 4);
+	int i;
+	data = (u32*) malloc (24);
     init_platform();
     usleep(10);
     i2c_master_init();
     i2c_slave_config();
-    i2c_read_data(data);
-    printf("X_AXIS_DATA_1: %lu", (unsigned long) data[0]);
-    printf("X_AXIS_DATA_2: %lu", (unsigned long) data[1]);
-    printf("Y_AXIS_DATA_1: %lu", (unsigned long) data[2]);
-    printf("Y_AXIS_DATA_2: %lu", (unsigned long) data[3]);
-    printf("Z_AXIS_DATA_1: %lu", (unsigned long) data[4]);
-    printf("Z_AXIS_DATA_2: %lu", (unsigned long) data[5]);
+    while (1) {
+    	i2c_read_data(data);
+    	printf("------%d------", i);
+    	printf("X_AXIS_DATA_1: %lu\n", (unsigned long) data[0]);
+    	printf("X_AXIS_DATA_2: %lu\n", (unsigned long) data[1]);
+    	printf("Y_AXIS_DATA_1: %lu\n", (unsigned long) data[2]);
+    	printf("Y_AXIS_DATA_2: %lu\n", (unsigned long) data[3]);
+    	printf("Z_AXIS_DATA_1: %lu\n", (unsigned long) data[4]);
+    	printf("Z_AXIS_DATA_2: %lu\n", (unsigned long) data[5]);
+    	sleep(1);
+    	i ++;
+    	if (i == 100)
+    		break;
+    };
     cleanup_platform();
     return 0;
 }

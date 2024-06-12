@@ -73,7 +73,7 @@ module i2c_top_tb();
         penable_i = 0                                                           ;
         pwrite_i = 1                                                            ;
         paddr_i = 8'h00                                                         ;
-        pwdata_i = 8'b00000100                                                  ; //prescaler value
+        pwdata_i = 8'b00000111                                                  ; //prescaler value
         #10
         psel_i = 1                                                              ;
         penable_i = 1                                                           ;
