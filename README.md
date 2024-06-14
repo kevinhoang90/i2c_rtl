@@ -137,5 +137,5 @@
 |4|data|transmit - 0x02|0xii|
 |5|enable i2c core|cmd - 0x01|0x40|
 |6|check bus free (read op)|status - 0x05||
-|7|write i2c slave's addr and read_bit|status - 0x05|8b'iiiiiii0|
+|7|write i2c slave's addr and read_bit|status - 0x05|8b'iiiiiii1|
 |8|enable i2c core and mode read 1 byte|cmd - 0x01|0x70|
